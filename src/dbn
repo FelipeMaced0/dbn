@@ -2,18 +2,26 @@
 
 #Author Felipe Macedo
 
-declare -a dirs
+declare -a files
+declare -s dirs
+
 len_d=0 ##Number of arguments
 commands=()
 
-get_directories(){
+get_files(){
 
-    for directory in *; do 
-        dirs+=("$directory")
+    for file in *; do 
+        files+=("$file")
         len_d=$(($len_d + 1))
     done
 
 }
+
+get_directories(){
+	dirs=$(ls -d)
+	echo $dirs	
+}
+
 #Generate character spaces
 generate_spaces(){
     n_spaces=$@
@@ -64,9 +72,10 @@ help_me(){
     echo "+----+---------------------------------+"
     echo "| dbn [options] [arguments]            |"
     echo "|                                      |"
-    echo "| -s | Show all directories            |"
+    echo "| -d | Show all Directories            |"
+	echo "| -f | Show all Files                  |"
     echo "| -h | Exihibit this menu              |"
-    echo "| -d | Enter the selected directory    |"
+    echo "| -e | Enter the selected directory    |"
     echo "| -c | Copy the name of a directory    |"
     echo "+----+---------------------------------+"
     echo
@@ -98,7 +107,7 @@ copy_dir_name(){
     clear
 
     if [ $# -eq 0 ]; then
-        echo "Specify one directory"
+        echo "Specify one File"
         echo
         echo "Correct usage: dbn -c 0"
         return;
@@ -107,7 +116,7 @@ copy_dir_name(){
     if [ $@ -ge 0 -a $@ -le $len_d ]; then
         
         echo ${dirs[$@]} | xclip -sel clip
-        echo "Dir Copied: ${dirs[$@]}"
+        echo "Copied: ${dirs[$@]}"
 		return;
     else
         echo "Index out of bound"
@@ -118,12 +127,14 @@ copy_dir_name(){
 }
 
 #begin of the program
+get_files
 get_directories
 commands=($@) ##Commands to execute
 
 for i in `seq 0 $#`; do
     case ${commands[$i]} in
-        -d) go_dir ${commands[${i+1}]};;
+        -e) go_dir ${commands[${i+1}]};;
+		-d) get_directories;;
         -s) show_dir;;
         -h) help_me;;
         -c) copy_dir_name ${commands[${i+1}]};;
