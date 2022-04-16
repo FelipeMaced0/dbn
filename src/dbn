@@ -1,0 +1,133 @@
+#!/bin/bash
+
+#Author Felipe Macedo
+
+declare -a dirs
+len_d=0 ##Number of arguments
+commands=()
+
+get_directories(){
+
+    for directory in *; do 
+        dirs+=("$directory")
+        len_d=$(($len_d + 1))
+    done
+
+}
+#Generate character spaces
+generate_spaces(){
+    n_spaces=$@
+    
+
+    while [ $n_spaces -ge 1 ]; do
+        echo -n "*"
+        n_spaces=$(($n_spaces -1))
+    done
+}
+
+#Show directories
+show_dir(){
+    local index=0;
+    clear
+    echo
+    echo
+    echo "+-------+------------------------+"
+    echo "| INDEX |       DIRECTORY        |"
+    echo "+-------+------------------------+"
+    ## 7 spaces - max 10 latters - max 7 more spaces | total of 24 characters
+    for directory in *; do
+        len_name=${#directory}
+        pos_sp=0
+
+        directory=${directory//" "/"_"} ##Replace spaces for underline
+        if [ $len_name -gt 10 ]; then
+            pos_sp=7
+        else
+            pos_sp=$(( 17 - $len_name ))
+        fi
+
+        printf "|  %2d   |" $index
+        generate_spaces 7
+        printf "%.10s" $directory    
+        generate_spaces $pos_sp
+        echo "|"
+
+        index=$(($index+1))
+    
+    done
+    echo "+-------+------------------------+"
+}
+
+#Show a help menu
+help_me(){
+    echo
+    echo "+----+---------------------------------+"
+    echo "| dbn [options] [arguments]            |"
+    echo "|                                      |"
+    echo "| -s | Show all directories            |"
+    echo "| -h | Exihibit this menu              |"
+    echo "| -d | Enter the selected directory    |"
+    #echo "| -c | Copy the name of a directory    |"
+    echo "+----+---------------------------------+"
+    echo
+   
+}
+
+#Enter a specific directory
+go_dir(){
+
+    clear
+    if [ $# -eq 0 ]; then #Verify if a index has been passed. $# == 0
+    
+        echo "Specify one directory"
+        echo
+        echo "Correct usage: dbn -d 1"
+        return;
+    fi
+
+    if [ $@ -ge 0 -a $@ -le $len_d ]; then #Verify if the index is inside the bound. [0,lend_d - 1]
+        cd "$PWD/${dirs[$@]}";
+        bash;
+    else
+        echo "Index out of bound"
+        echo "Index range [0-$(($len_d-1))]"
+    fi
+}
+
+copy_dir_name(){
+    clear
+
+    if [ $# -eq 0 ]; then
+        echo "Specify one directory"
+        echo
+        echo "Correct usage: dbn -c 1"
+        return;
+    fi
+
+    if [ $@ -ge 0 -a $@ -le $len_d ]; then
+        
+        echo ${dirs[$@]} | xclip -sel clip
+        echo "Dir Copied: ${dirs[$@]}"
+
+    else
+        echo "Index out of bound"
+        echo "Index range [0-$(($len_d -1))]" 
+    fi
+    
+}
+
+#begin of the program
+get_directories
+commands=($@) ##Commands to execute
+
+for i in `seq 0 $#`; do
+    case ${commands[$i]} in
+        -d) go_dir ${commands[${i+1}]};;
+        -s) show_dir;;
+        -h) help_me;;
+        -c) copy_dir_name ${commands[${i+1}]};;
+         *) help_me;; 
+        
+    esac
+        
+done
