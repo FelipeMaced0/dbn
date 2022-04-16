@@ -67,7 +67,7 @@ help_me(){
     echo "| -s | Show all directories            |"
     echo "| -h | Exihibit this menu              |"
     echo "| -d | Enter the selected directory    |"
-    #echo "| -c | Copy the name of a directory    |"
+    echo "| -c | Copy the name of a directory    |"
     echo "+----+---------------------------------+"
     echo
    
@@ -100,7 +100,7 @@ copy_dir_name(){
     if [ $# -eq 0 ]; then
         echo "Specify one directory"
         echo
-        echo "Correct usage: dbn -c 1"
+        echo "Correct usage: dbn -c 0"
         return;
     fi
 
@@ -108,10 +108,11 @@ copy_dir_name(){
         
         echo ${dirs[$@]} | xclip -sel clip
         echo "Dir Copied: ${dirs[$@]}"
-
+		return;
     else
         echo "Index out of bound"
-        echo "Index range [0-$(($len_d -1))]" 
+        echo "Index range [0-$(($len_d -1))]"
+		return; 
     fi
     
 }
@@ -126,7 +127,6 @@ for i in `seq 0 $#`; do
         -s) show_dir;;
         -h) help_me;;
         -c) copy_dir_name ${commands[${i+1}]};;
-         *) help_me;; 
         
     esac
         
