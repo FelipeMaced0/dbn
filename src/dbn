@@ -2,23 +2,39 @@
 
 #Author Felipe Macedo
 
-declare -a dirs
-len_d=0 ##Number of arguments
-commands=()
+declare -a files
 
-get_directories(){
+list_files(){
 
-    for directory in *; do 
-        dirs+=("$directory")
-        len_d=$(($len_d + 1))
-    done
 
+    for f in *; do 
+		if [[ -f "$f" && ! -L "$f" ]]; then 
+        	files+=("$f")
+		fi
+	done
 }
+
+list_directories(){
+
+	for d in *; do
+		if [[ -d "$d" && ! -L "$d" ]]; then 
+			files+=("$d")
+		fi
+	done
+	
+}
+
+list_all(){
+	for file in *; do 
+		files+=("$file")
+	done 
+}
+
+
 #Generate character spaces
 generate_spaces(){
     n_spaces=$@
     
-
     while [ $n_spaces -ge 1 ]; do
         echo -n "*"
         n_spaces=$(($n_spaces -1))
@@ -28,18 +44,26 @@ generate_spaces(){
 #Show directories
 show_dir(){
     local index=0;
-    clear
+	local len_files=${#files[@]} #Length o the array
+	
+	clear
+
+	if [ $len_files -eq 0 ]; then
+		list_all
+		len_files=${#files[@]}
+	fi	
+    
     echo
     echo
     echo "+-------+------------------------+"
     echo "| INDEX |       DIRECTORY        |"
     echo "+-------+------------------------+"
     ## 7 spaces - max 10 latters - max 7 more spaces | total of 24 characters
-    for directory in *; do
-        len_name=${#directory}
+	for i in `seq 0 $((len_files - 1))`; do
+        len_name=${#files[$i]}
         pos_sp=0
 
-        directory=${directory//" "/"_"} ##Replace spaces for underline
+        file=${files[$i]//" "/"_"} ##Replace spaces for underline
         if [ $len_name -gt 10 ]; then
             pos_sp=7
         else
@@ -48,7 +72,7 @@ show_dir(){
 
         printf "|  %2d   |" $index
         generate_spaces 7
-        printf "%.10s" $directory    
+        printf "%.10s" $file    
         generate_spaces $pos_sp
         echo "|"
 
@@ -64,10 +88,10 @@ help_me(){
     echo "+----+---------------------------------+"
     echo "| dbn [options] [arguments]            |"
     echo "|                                      |"
-    echo "| -s | Show all directories            |"
-    echo "| -h | Exihibit this menu              |"
+    echo "| -c | Copy the name of a directory    |"
     echo "| -d | Enter the selected directory    |"
-    #echo "| -c | Copy the name of a directory    |"
+    echo "| -h | Exihibit this menu              |"
+    echo "| -l | List content of the directory   |"
     echo "+----+---------------------------------+"
     echo
    
@@ -75,8 +99,14 @@ help_me(){
 
 #Enter a specific directory
 go_dir(){
+	local len=${#files[@]}
+	clear
+	
+	if [ $len -eq 0 ]; then
+		list_all
+		len=${#files[@]}
+	fi
 
-    clear
     if [ $# -eq 0 ]; then #Verify if a index has been passed. $# == 0
     
         echo "Specify one directory"
@@ -85,49 +115,50 @@ go_dir(){
         return;
     fi
 
-    if [ $@ -ge 0 -a $@ -le $len_d ]; then #Verify if the index is inside the bound. [0,lend_d - 1]
-        cd "$PWD/${dirs[$@]}";
+    if [ $@ -ge 0 -a $@ -le $len ]; then #Verify if the index is inside the bound. [0,len - 1]
+        cd "$PWD/${files[$@]}";
         bash;
     else
         echo "Index out of bound"
-        echo "Index range [0-$(($len_d-1))]"
+        echo "Index range [0-$(($len-1))]"
     fi
 }
 
 copy_dir_name(){
-    clear
+    local len=${#files[@]}
+	clear
 
     if [ $# -eq 0 ]; then
-        echo "Specify one directory"
+        echo "Specify one File"
         echo
-        echo "Correct usage: dbn -c 1"
+        echo "Correct usage: dbn -c 0"
         return;
     fi
 
-    if [ $@ -ge 0 -a $@ -le $len_d ]; then
+    if [ $@ -ge 0 -a $@ -le $len ]; then
         
-        echo ${dirs[$@]} | xclip -sel clip
-        echo "Dir Copied: ${dirs[$@]}"
-
+        echo ${files[$@]} | xclip -sel clip
+        echo "Copied: ${files[$@]}"
+		return;
     else
         echo "Index out of bound"
-        echo "Index range [0-$(($len_d -1))]" 
+        echo "Index range [0-$(($len -1))]"
+		return; 
     fi
     
 }
 
-#begin of the program
-get_directories
+
 commands=($@) ##Commands to execute
 
 for i in `seq 0 $#`; do
     case ${commands[$i]} in
-        -d) go_dir ${commands[${i+1}]};;
-        -s) show_dir;;
+        -c) copy_dir_name ${commands[${i+2}]};;
+        -g) go_dir ${commands[${i+2}]};;
+		-f) list_files;;
+		-d) list_directories;;
         -h) help_me;;
-        -c) copy_dir_name ${commands[${i+1}]};;
-         *) help_me;; 
-        
+        -l) show_dir;;
     esac
         
 done
