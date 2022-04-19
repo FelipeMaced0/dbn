@@ -153,8 +153,8 @@ commands=($@) ##Commands to execute
 
 for i in `seq 0 $#`; do
     case ${commands[$i]} in
-        -c) copy_dir_name ${commands[${i+2}]};;
-        -g) go_dir ${commands[${i+2}]};;
+        -c) copy_dir_name ${commands[$(($i+1))]};;
+        -g) go_dir ${commands[$(($i+1))]};;
 		-f) list_files;;
 		-d) list_directories;;
         -h) help_me;;
