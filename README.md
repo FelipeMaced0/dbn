@@ -17,6 +17,3 @@ For copying to work, it is necessary to the have xclip installed on the machine.
 | `dbn -f -c 4`|  Copy the name of the file at position 4                |
 | `dbn -d -c 2`|  Same as before but with directory's name               | 
 | `dbn -d -g 5`|  Changes the working directory to the one at position 5 |
-
-## Copy
- For copying to work, it is necessary to the have xclip installed on the machine. If you doesn't have it, no problem. Just run on the terminal the following command.
