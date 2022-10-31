@@ -1,5 +1,10 @@
 # Introduction
 dbn means Directory By Number. This utility is meant to be used as a shortcut when dealing with files with big names, allowing the user to select the desired file.
+## Prerequisites
+
+For copying to work, it is necessary to the have xclip installed on the machine. If you doesn't have it, no problem. Just run on the terminal the following command.
+ 
+ `sudo apt install xclip`
 
 ## Usage
 
@@ -15,5 +20,3 @@ dbn means Directory By Number. This utility is meant to be used as a shortcut wh
 
 ## Copy
  For copying to work, it is necessary to the have xclip installed on the machine. If you doesn't have it, no problem. Just run on the terminal the following command.
- 
- `sudo apt install xclip`
